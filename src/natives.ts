@@ -7,96 +7,100 @@ const saveToFile = async (
   return await invoke("save_to_file", { content, fileName: fileName });
 };
 
-const generateUUIDV1 = async (): Promise<string> => {
-  return await invoke("gen_uuid_v1", {});
+const generateUUIDV1 = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_uuid_v1", { n: n || 1 });
 };
 
 const generateUUIDV3 = async (
   namespace: string,
   name: string,
-): Promise<string> => {
+  n?: number,
+): Promise<string[]> => {
   return await invoke("gen_uuid_v3", {
-    namespace: namespace || (await generateUUIDV4()),
+    namespace,
     name: name || "name",
+    n: n || 1,
   });
 };
 
-const generateUUIDV4 = async (): Promise<string> => {
-  return await invoke("gen_uuid_v4", {});
+const generateUUIDV4 = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_uuid_v4", { n: n || 1 });
 };
 
 const generateUUIDV5 = async (
   namespace: string,
   name: string,
-): Promise<string> => {
+  n?: number,
+): Promise<string[]> => {
   return await invoke("gen_uuid_v5", {
-    namespace: namespace || (await generateUUIDV4()),
+    namespace,
     name: name || "name",
+    n: n || 1,
   });
 };
 
-const generateUUIDV6 = async (): Promise<string> => {
-  return await invoke("gen_uuid_v6", {});
+const generateUUIDV6 = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_uuid_v6", { n: n || 1 });
 };
 
-const generateUUIDV7 = async (): Promise<string> => {
-  return await invoke("gen_uuid_v7", {});
+const generateUUIDV7 = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_uuid_v7", { n: n || 1 });
 };
 
-const generateShortUUID = async (): Promise<string> => {
-  return await invoke("gen_short_uuid", {});
+const generateShortUUID = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_short_uuid", { n: n || 1 });
 };
 
-const generateNilUUID = async (): Promise<string> => {
-  return await invoke("gen_nil_uuid", {});
+const generateNilUUID = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_nil_uuid", { n: n || 1 });
 };
 
-const generateMaxUUID = async (): Promise<string> => {
-  return await invoke("gen_max_uuid", {});
+const generateMaxUUID = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_max_uuid", { n: n || 1 });
 };
 
-const generateNanoID = async (): Promise<string> => {
-  return await invoke("gen_nano_id", {});
+const generateNanoID = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_nano_id", { n: n || 1 });
 };
 
-const generateULID = async (): Promise<string> => {
-  return await invoke("gen_ulid", {});
+const generateULID = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_ulid", { n: n || 1 });
 };
 
-const generateCUID = async (): Promise<string> => {
-  return await invoke("gen_cuid", {});
+const generateCUID = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_cuid", { n: n || 1 });
 };
 
-const generateCUID2 = async (): Promise<string> => {
-  return await invoke("gen_cuid2", {});
+const generateCUID2 = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_cuid2", { n: n || 1 });
 };
 
-const generateSnowflake = async (): Promise<string> => {
-  return await invoke("gen_snowflake", {});
+const generateSnowflake = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_snowflake", { n: n || 1 });
 };
 
-const generateSonyflake = async (): Promise<string> => {
-  return await invoke("gen_sonyflake", {});
+const generateSonyflake = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_sonyflake", { n: n || 1 });
 };
 
-const generateNUID = async (): Promise<string> => {
-  return await invoke("gen_nuid", {});
+const generateNUID = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_nuid", { n: n || 1 });
 };
 
-const generateUPID = async (prefix: string): Promise<string> => {
-  return await invoke("gen_upid", { prefix });
+const generateUPID = async (prefix: string, n?: number): Promise<string[]> => {
+  return await invoke("gen_upid", { prefix, n: n || 1 });
 };
 
-const generateTSID = async (): Promise<string> => {
-  return await invoke("gen_tsid");
+const generateTSID = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_tsid", { n: n || 1 });
 };
 
-const generateObjectID = async (): Promise<string> => {
-  return await invoke("gen_object_id");
+const generateObjectID = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_object_id", { n: n || 1 });
 };
 
-const generateSCRU128 = async (): Promise<string> => {
-  return await invoke("gen_scru128");
+const generateSCRU128 = async (n?: number): Promise<string[]> => {
+  return await invoke("gen_scru128", { n: n || 1 });
 };
 
 export default {

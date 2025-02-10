@@ -7,126 +7,235 @@ use sonyflake::Sonyflake;
 use tauri::menu::{AboutMetadata, MenuBuilder, MenuItemBuilder, SubmenuBuilder};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_opener::OpenerExt;
-use ulid::Ulid;
 use uuid::Uuid;
 
 #[tauri::command]
-fn gen_uuid_v1() -> String {
-    Uuid::now_v1(&[1, 2, 3, 4, 5, 6]).hyphenated().to_string()
+fn gen_uuid_v1(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = Uuid::now_v1(&[1, 2, 3, 4, 5, 6]).hyphenated().to_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_uuid_v3(namespace: &str, name: &str) -> String {
-    if namespace.is_empty() || name.is_empty() {
-        return "".to_string();
+fn gen_uuid_v3(namespace: &str, name: &str, n: u32) -> Vec<String> {
+    if name.is_empty() {
+        return vec![];
     }
-    let ns = Uuid::parse_str(namespace);
-    match ns {
+    let new_id = match Uuid::try_parse(namespace) {
         Ok(v) => Uuid::new_v3(&v, name.as_bytes()).hyphenated().to_string(),
-        Err(_) => "".to_string(),
+        _ => "".to_string(),
+    };
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = if new_id.is_empty() {
+            let r = Uuid::new_v4();
+            Uuid::new_v3(&r, name.as_bytes()).hyphenated().to_string()
+        } else {
+            new_id.clone()
+        };
+        list.push(id);
     }
+    list
 }
 
 #[tauri::command]
-fn gen_uuid_v4() -> String {
-    Uuid::new_v4().hyphenated().to_string()
+fn gen_uuid_v4(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = Uuid::new_v4().hyphenated().to_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_uuid_v5(namespace: &str, name: &str) -> String {
-    if namespace.is_empty() || name.is_empty() {
-        return "".to_string();
+fn gen_uuid_v5(namespace: &str, name: &str, n: u32) -> Vec<String> {
+    if name.is_empty() {
+        return vec![];
     }
-    let ns = Uuid::parse_str(namespace);
-    match ns {
+    let new_id = match Uuid::try_parse(namespace) {
         Ok(v) => Uuid::new_v5(&v, name.as_bytes()).hyphenated().to_string(),
-        Err(_) => "".to_string(),
+        _ => "".to_string(),
+    };
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = if new_id.is_empty() {
+            let r = Uuid::new_v4();
+            Uuid::new_v5(&r, name.as_bytes()).hyphenated().to_string()
+        } else {
+            new_id.clone()
+        };
+        list.push(id);
     }
+    list
 }
 
 #[tauri::command]
-fn gen_uuid_v6() -> String {
-    Uuid::now_v6(&[1, 2, 3, 4, 5, 6]).hyphenated().to_string()
+fn gen_uuid_v6(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = Uuid::now_v6(&[1, 2, 3, 4, 5, 6]).hyphenated().to_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_uuid_v7() -> String {
-    Uuid::now_v7().hyphenated().to_string()
+fn gen_uuid_v7(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = Uuid::now_v7().hyphenated().to_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_short_uuid() -> String {
-    let shortened_uuid = short!();
-    shortened_uuid.to_string()
+fn gen_short_uuid(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let shortened_uuid = short!();
+        let id = shortened_uuid.to_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_nil_uuid() -> String {
-    "00000000-0000-0000-0000-000000000000".to_string()
+fn gen_nil_uuid(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    let id = "00000000-0000-0000-0000-000000000000".to_string();
+    for _ in 0..n {
+        list.push(id.clone());
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_max_uuid() -> String {
-    "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF".to_string()
+fn gen_max_uuid(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    let id = "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF".to_string();
+    for _ in 0..n {
+        list.push(id.clone());
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_nano_id() -> String {
-    nanoid!()
+fn gen_nano_id(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = nanoid!();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_ulid() -> String {
-    let ulid = Ulid::new();
-    ulid.to_string()
+fn gen_ulid(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    let mut gen = ulid::Generator::new();
+    for _ in 0..n {
+        let id = gen.generate().unwrap();
+        list.push(id.to_string());
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_cuid() -> String {
-    cuid::cuid1().unwrap()
+fn gen_cuid(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = cuid::cuid1().unwrap();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_cuid2() -> String {
-    cuid::cuid2()
+fn gen_cuid2(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = cuid::cuid2();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_nuid() -> String {
-    nuid::next().to_string()
+fn gen_nuid(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    let mut gen = nuid::NUID::new();
+    for _ in 0..n {
+        let id = gen.next().to_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_snowflake() -> String {
+fn gen_snowflake(n: u32) -> Vec<String> {
+    let mut list = vec![];
     let mut g = SnowflakeIdGenerator::new(1, 1);
-    g.generate().to_string()
+    for _ in 0..n {
+        let id = g.generate().to_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_sonyflake() -> String {
-    let sf = Sonyflake::new().unwrap();
-    let next_id = sf.next_id().unwrap();
-    format!("{}", next_id)
+fn gen_sonyflake(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    let gen = Sonyflake::new().unwrap();
+    for _ in 0..n {
+        let id = format!("{}", gen.next_id().unwrap());
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_upid(prefix: &str) -> String {
-    upid::Upid::new(prefix).to_string()
+fn gen_upid(prefix: &str, n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = upid::Upid::new(prefix).to_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_tsid() -> String {
-    tsid::create_tsid().to_string()
+fn gen_tsid(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = tsid::create_tsid().to_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_object_id() -> String {
-    bson::oid::ObjectId::new().to_string()
+fn gen_object_id(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = bson::oid::ObjectId::new().to_string();
+        list.push(id)
+    }
+    list
 }
 
 #[tauri::command]
-fn gen_scru128() -> String {
-    scru128::new_string()
+fn gen_scru128(n: u32) -> Vec<String> {
+    let mut list = vec![];
+    for _ in 0..n {
+        let id = scru128::new_string();
+        list.push(id);
+    }
+    list
 }
 
 #[tauri::command]
@@ -218,8 +327,9 @@ mod test {
     #[test]
     fn test_gen_nil_empty_uuid() {
         let expected = "00000000-0000-0000-0000-000000000000";
-        let id = gen_nil_uuid();
-        println!("{:?}", id);
-        assert_eq!(expected, id);
+        let ids = gen_nil_uuid(5);
+        println!("{:?}", ids);
+        assert_eq!(5, ids.len());
+        assert_eq!(expected, ids[0]);
     }
 }

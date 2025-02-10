@@ -120,55 +120,55 @@ function App({ changeLocale }: { changeLocale: (locale: string) => void }) {
     useCopy();
   const intl = useIntl();
 
-  async function generate() {
-    let value = "";
+  async function generate(n: number) {
+    let value: string[] = [];
     if (idVersion === "uuidv1") {
-      value = await natives.generateUUIDV1();
+      value = await natives.generateUUIDV1(n);
     } else if (idVersion === "uuidv3") {
-      value = await natives.generateUUIDV3(namespace, name);
+      value = await natives.generateUUIDV3(namespace, name, n);
     } else if (idVersion === "uuidv4") {
-      value = await natives.generateUUIDV4();
+      value = await natives.generateUUIDV4(n);
     } else if (idVersion === "uuidv5") {
-      value = await natives.generateUUIDV5(namespace, name);
+      value = await natives.generateUUIDV5(namespace, name, n);
     } else if (idVersion === "uuidv6") {
-      value = await natives.generateUUIDV6();
+      value = await natives.generateUUIDV6(n);
     } else if (idVersion === "uuidv7") {
-      value = await natives.generateUUIDV7();
+      value = await natives.generateUUIDV7(n);
     } else if (idVersion === "shortuuid") {
-      value = await natives.generateShortUUID();
+      value = await natives.generateShortUUID(n);
     } else if (idVersion === "niluuid") {
-      value = await natives.generateNilUUID();
+      value = await natives.generateNilUUID(n);
     } else if (idVersion === "maxuuid") {
-      value = await natives.generateMaxUUID();
+      value = await natives.generateMaxUUID(n);
     } else if (idVersion === "ulid") {
-      value = await natives.generateULID();
+      value = await natives.generateULID(n);
     } else if (idVersion === "nanoid") {
-      value = await natives.generateNanoID();
+      value = await natives.generateNanoID(n);
     } else if (idVersion === "cuid") {
-      value = await natives.generateCUID();
+      value = await natives.generateCUID(n);
     } else if (idVersion === "cuid2") {
-      value = await natives.generateCUID2();
+      value = await natives.generateCUID2(n);
     } else if (idVersion === "snowflake") {
-      value = await natives.generateSnowflake();
+      value = await natives.generateSnowflake(n);
     } else if (idVersion === "sonyflake") {
-      value = await natives.generateSonyflake();
+      value = await natives.generateSonyflake(n);
     } else if (idVersion === "nuid") {
-      value = await natives.generateNUID();
+      value = await natives.generateNUID(n);
     } else if (idVersion === "upid") {
-      value = await natives.generateUPID(prefix || "zzzz");
+      value = await natives.generateUPID(prefix || "zzzz", n);
     } else if (idVersion === "tsid") {
-      value = await natives.generateTSID();
+      value = await natives.generateTSID(n);
     } else if (idVersion === "objectid") {
-      value = await natives.generateObjectID();
+      value = await natives.generateObjectID(n);
     } else if (idVersion === "scru128") {
-      value = await natives.generateSCRU128();
+      value = await natives.generateSCRU128(n);
     }
     return value;
   }
 
   async function generateOne() {
     setIsGenerating(true);
-    const newID = await generate();
+    const newID = (await generate(1))[0];
     setResult(newID);
     setIsGenerating(false);
   }
@@ -176,10 +176,7 @@ function App({ changeLocale }: { changeLocale: (locale: string) => void }) {
   async function generateBulk() {
     setIsGenerating(true);
     await sleep(100);
-    const ids = [];
-    for (let i = 0; i < bulkQuantity; i++) {
-      ids.push(await generate());
-    }
+    const ids = await generate(bulkQuantity);
     setBulkResult(ids);
     setIsGenerating(false);
   }
@@ -208,7 +205,7 @@ function App({ changeLocale }: { changeLocale: (locale: string) => void }) {
         e.preventDefault();
         return false;
       },
-      { capture: true },
+      { capture: true }
     );
   }, []);
 
@@ -292,7 +289,7 @@ function App({ changeLocale }: { changeLocale: (locale: string) => void }) {
                   size="1"
                   variant="ghost"
                   onClick={async () => {
-                    const id = await natives.generateUUIDV4();
+                    const id = (await natives.generateUUIDV4())[0];
                     setNamespace(id);
                     setNamespaceType("");
                   }}
@@ -382,130 +379,132 @@ function App({ changeLocale }: { changeLocale: (locale: string) => void }) {
             />
           </>
         ) : null}
-        <Flex justify="end" p="1" data-tauri-drag-region>
-          <Text as="label" size="2" weight="medium">
-            <Flex gap="2">
-              <Switch
-                checked={isBulkMode}
-                onCheckedChange={(checked) => setIsBulkMode(checked)}
-              />
+
+        <Flex
+          direction="column"
+          gap="2"
+          p="2"
+          mt="4"
+          style={{
+            border: "1px solid var(--gray-6)",
+            borderRadius: "var(--radius-2)",
+            cursor: "default",
+          }}
+        >
+          <Flex data-tauri-drag-region justify="between" align="center">
+            <Text as="label" htmlFor="enable_bulk" size="2" weight="medium">
               <FormattedMessage
                 id="bulkGeneration"
-                defaultMessage="Bulk generation"
+                defaultMessage="Bulk Generation"
               />
-            </Flex>
-          </Text>
-        </Flex>
-        {isBulkMode ? (
-          <>
-            <Flex
-              direction="column"
-              gap="2"
-              p="2"
-              style={{
-                border: "1px solid var(--gray-6)",
-                borderRadius: "var(--radius-2)",
-                cursor: "default",
-              }}
-            >
-              <Flex align="center" gap="2">
-                <Text size="2">
-                  <FormattedMessage
-                    id="bulkQuantity"
-                    defaultMessage={`Number of unique IDs to generate({min}~ {max}):`}
-                    values={{
-                      min: MIN_BULK_QUANTITY,
-                      max: MAX_BULK_QUANTITY,
+            </Text>
+            <Switch
+              id="enable_bulk"
+              checked={isBulkMode}
+              onCheckedChange={(checked) => setIsBulkMode(checked)}
+            />
+          </Flex>
+          {isBulkMode ? (
+            <>
+              <Flex direction="column" gap="2">
+                <Flex align="center" gap="2">
+                  <Text size="2">
+                    <FormattedMessage
+                      id="bulkQuantity"
+                      defaultMessage={`Number of unique IDs to generate({min}~ {max}):`}
+                      values={{
+                        min: MIN_BULK_QUANTITY,
+                        max: MAX_BULK_QUANTITY,
+                      }}
+                    />
+                  </Text>
+                  <TextField.Root
+                    style={{ width: 100 }}
+                    type="number"
+                    value={bulkQuantity}
+                    onChange={(e) => {
+                      if (!e.target.value) {
+                        setBulkQuantity(MIN_BULK_QUANTITY);
+                        return;
+                      }
+                      const value = parseInt(e.target.value, 10);
+                      if (value <= MIN_BULK_QUANTITY) {
+                        setBulkQuantity(MIN_BULK_QUANTITY);
+                      } else if (value >= MAX_BULK_QUANTITY) {
+                        setBulkQuantity(MAX_BULK_QUANTITY);
+                      } else {
+                        setBulkQuantity(parseInt(e.target.value, 10));
+                      }
                     }}
-                  />
-                </Text>
-                <TextField.Root
-                  style={{ width: 100 }}
-                  type="number"
-                  value={bulkQuantity}
-                  onChange={(e) => {
-                    if (!e.target.value) {
-                      setBulkQuantity(MIN_BULK_QUANTITY);
-                      return;
-                    }
-                    const value = parseInt(e.target.value, 10);
-                    if (value <= MIN_BULK_QUANTITY) {
-                      setBulkQuantity(MIN_BULK_QUANTITY);
-                    } else if (value >= MAX_BULK_QUANTITY) {
-                      setBulkQuantity(MAX_BULK_QUANTITY);
-                    } else {
-                      setBulkQuantity(parseInt(e.target.value, 10));
-                    }
-                  }}
-                >
-                  <TextField.Slot side="right">
-                    <IconButton
-                      size="1"
-                      variant="ghost"
-                      onClick={() => {
-                        if (bulkQuantity >= MAX_BULK_QUANTITY) {
-                          setBulkQuantity(MAX_BULK_QUANTITY);
-                        } else {
-                          setBulkQuantity(bulkQuantity + 1);
-                        }
-                      }}
-                    >
-                      <PlusIcon />
-                    </IconButton>
-                    <IconButton
-                      size="1"
-                      variant="ghost"
-                      onClick={() => {
-                        if (bulkQuantity <= MIN_BULK_QUANTITY) {
-                          setBulkQuantity(MIN_BULK_QUANTITY);
-                        } else {
-                          setBulkQuantity(bulkQuantity - 1);
-                        }
-                      }}
-                    >
-                      <MinusIcon />
-                    </IconButton>
-                  </TextField.Slot>
-                </TextField.Root>
+                  >
+                    <TextField.Slot side="right">
+                      <IconButton
+                        size="1"
+                        variant="ghost"
+                        onClick={() => {
+                          if (bulkQuantity >= MAX_BULK_QUANTITY) {
+                            setBulkQuantity(MAX_BULK_QUANTITY);
+                          } else {
+                            setBulkQuantity(bulkQuantity + 1);
+                          }
+                        }}
+                      >
+                        <PlusIcon />
+                      </IconButton>
+                      <IconButton
+                        size="1"
+                        variant="ghost"
+                        onClick={() => {
+                          if (bulkQuantity <= MIN_BULK_QUANTITY) {
+                            setBulkQuantity(MIN_BULK_QUANTITY);
+                          } else {
+                            setBulkQuantity(bulkQuantity - 1);
+                          }
+                        }}
+                      >
+                        <MinusIcon />
+                      </IconButton>
+                    </TextField.Slot>
+                  </TextField.Root>
+                </Flex>
+                <Flex align="center" gap="2">
+                  <Text size="2">
+                    <FormattedMessage
+                      id="bulkOutput"
+                      defaultMessage="Output format:"
+                    />
+                  </Text>
+                  <RadioGroup.Root
+                    value={bulkOutput}
+                    onValueChange={(value) => setBulkOutput(value)}
+                    radioGroup="bulkOutput"
+                  >
+                    <Flex align="center" gap="2">
+                      <Text as="label" size="2">
+                        <Flex gap="2">
+                          <RadioGroup.Item value="raw" />
+                          <FormattedMessage
+                            id="bulkOutputRaw"
+                            defaultMessage="Raw"
+                          />
+                        </Flex>
+                      </Text>
+                      <Text as="label" size="2">
+                        <Flex gap="2">
+                          <RadioGroup.Item value="json" />
+                          <FormattedMessage
+                            id="bulkOutputJson"
+                            defaultMessage="JSON"
+                          />
+                        </Flex>
+                      </Text>
+                    </Flex>
+                  </RadioGroup.Root>
+                </Flex>
               </Flex>
-              <Flex align="center" gap="2">
-                <Text size="2">
-                  <FormattedMessage
-                    id="bulkOutput"
-                    defaultMessage="Output format:"
-                  />
-                </Text>
-                <RadioGroup.Root
-                  value={bulkOutput}
-                  onValueChange={(value) => setBulkOutput(value)}
-                  radioGroup="bulkOutput"
-                >
-                  <Flex align="center" gap="2">
-                    <Text as="label" size="2">
-                      <Flex gap="2">
-                        <RadioGroup.Item value="raw" />
-                        <FormattedMessage
-                          id="bulkOutputRaw"
-                          defaultMessage="Raw"
-                        />
-                      </Flex>
-                    </Text>
-                    <Text as="label" size="2">
-                      <Flex gap="2">
-                        <RadioGroup.Item value="json" />
-                        <FormattedMessage
-                          id="bulkOutputJson"
-                          defaultMessage="JSON"
-                        />
-                      </Flex>
-                    </Text>
-                  </Flex>
-                </RadioGroup.Root>
-              </Flex>
-            </Flex>
-          </>
-        ) : null}
-
+            </>
+          ) : null}
+        </Flex>
         <Flex align="center" justify="between">
           <Text weight="medium" size="2">
             <FormattedMessage
@@ -518,7 +517,7 @@ function App({ changeLocale }: { changeLocale: (locale: string) => void }) {
         {isBulkMode ? (
           <Box
             style={{
-              height: 150,
+              height: 210,
               border: "1px solid var(--gray-6)",
               borderRadius: "var(--radius-2)",
               backgroundColor: "var(--color-surface)",
@@ -585,14 +584,14 @@ function App({ changeLocale }: { changeLocale: (locale: string) => void }) {
                       isLetter(char)
                         ? undefined
                         : isDigit(char)
-                          ? "blue"
-                          : "orange"
+                        ? "blue"
+                        : "orange"
                     }
                     weight="medium"
                   >
                     {char}
                   </Text>
-                ),
+                )
               )}
             </Flex>
           </Box>
@@ -628,7 +627,7 @@ function App({ changeLocale }: { changeLocale: (locale: string) => void }) {
                     await copyBulkToClipboard(bulkResult.join("\n"));
                   } else if (bulkOutput === "json") {
                     await copyBulkToClipboard(
-                      JSON.stringify(bulkResult, undefined, 2),
+                      JSON.stringify(bulkResult, undefined, 2)
                     );
                   }
                 }
@@ -677,7 +676,7 @@ function App({ changeLocale }: { changeLocale: (locale: string) => void }) {
                   const fileName = `${idVersion}-export-${ts}.json`;
                   await natives.saveToFile(
                     JSON.stringify(bulkResult, undefined, 2),
-                    fileName,
+                    fileName
                   );
                 }
               }}
